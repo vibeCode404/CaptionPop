@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaptionPop — Free, private auto-captions in your browser</title>
+<meta name="description" content="CaptionPop adds karaoke-style captions to your videos. 100% in-browser AI — your video never leaves your device. Free, no account, no watermark.">
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e222c; --border:#2a2f3c;
+  --text:#e8eaf0; --muted:#9aa0b4; --accent:#ffd23f; --accent2:#4f8cff;
+  --danger:#ff5d5d; --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header .logo{font-size:1.4rem;font-weight:800;letter-spacing:.5px}
+header .logo span{color:var(--accent)}
+header .tag{color:var(--muted);font-size:.9rem}
+header .roast{font-size:.85rem;color:var(--accent);font-style:italic}
+header .spacer{flex:1}
+.badge{font-size:.75rem;background:#1d3a1d;color:#7dffa8;border:1px solid #2c5c2c;padding:3px 10px;border-radius:99px}
+main{max-width:1100px;margin:0 auto;padding:20px;display:grid;gap:18px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.card h2{margin:0 0 12px;font-size:1.05rem}
+.card h2 .step{display:inline-block;background:var(--accent2);color:#fff;font-size:.75rem;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;margin-right:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{background:var(--accent2);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:.95rem;cursor:pointer;font-weight:600}
+button:hover{filter:brightness(1.1)}
+button:disabled{opacity:.45;cursor:default}
+button.ghost{background:var(--panel2);border:1px solid var(--border)}
+button.warn{background:#3a2a1d;border:1px solid #6b4d2a;color:#ffcf7d}
+select,input[type=text],input[type=number],textarea{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:.95rem}
+input[type=color]{width:44px;height:36px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);cursor:pointer}
+input[type=range]{accent-color:var(--accent2)}
+label{font-size:.85rem;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:4px;min-width:120px}
+#drop{border:2px dashed var(--border);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:.2s}
+#drop:hover,#drop.over{border-color:var(--accent2);color:var(--text);background:#161a25}
+#drop input{display:none}
+#stageWrap{display:none;margin-top:14px}
+#stage{position:relative;width:100%;max-width:420px;margin:0 auto;background:#000;border-radius:10px;overflow:hidden;aspect-ratio:9/16}
+#stage video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+#cap{position:absolute;left:0;right:0;text-align:center;pointer-events:none;padding:0 12px}
+#cap.bottom{bottom:7%} #cap.top{top:7%}
+#cap.middle{top:50%;transform:translateY(-50%)}
+#cap .w{font-weight:800;-webkit-text-stroke:.5px rgba(0,0,0,.6)}
+#cap .w.active{color:var(--accent)}
+#prog{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:10px;display:none}
+#prog div{height:100%;width:0;background:var(--accent2);transition:width .2s}
+#status{color:var(--muted);font-size:.9rem;margin-top:8px;min-height:1.4em}
+#stats{color:#7dffa8;font-size:.85rem;margin-top:6px}
+#debugline{color:#666;font-size:.75rem;margin-top:6px;word-break:break-all;display:none}
+#phrases{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto}
+.phrase-row{display:flex;gap:8px;align-items:flex-start;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.phrase-row .time{font-size:.75rem;color:var(--muted);white-space:nowrap;padding-top:10px;min-width:86px}
+.phrase-row textarea{flex:1;min-height:44px;resize:vertical;font-size:.9rem}
+.phrase-row button{padding:6px 10px;font-size:.8rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}main{padding:12px}}
+.style-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.note{font-size:.85rem;color:var(--muted)}
+.kbd{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-size:.8rem}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:24px 16px;border-top:1px solid var(--border);margin-top:10px}
+footer a{color:var(--accent2)}
+.hidden{display:none!important}
+#exportProg{margin-top:10px}
+details{margin-top:10px}
+details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+</style>
+<script type="importmap">
+{"imports":{
+  "mp4-muxer":"https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.1/build/mp4-muxer.min.mjs",
+  "mp4box":"https://cdn.jsdelivr.net/npm/mp4box@0.5.2/dist/mp4box.all.min.js"
+}}
+</script>
+</head>
+<body>
+<header>
+  <div class="logo">Caption<span>Pop</span></div>
+  <div class="tag">Free karaoke captions, 100% in your browser</div>
+  <div class="roast">CapCut put captions behind a paywall. We put them in your browser for $0. Now your video never leaves your device — their paywall never leaves your wallet. 🔓</div>
+  <div class="spacer"></div>
+  <div class="badge">🔒 No upload · No account · No watermark</div>
+</header>
+<main>
+
+  <div class="card" id="uploadCard">
+    <h2><span class="step">1</span>Drop your video</h2>
+    <div id="drop">
+      <input type="file" id="file" accept="video/*">
+      <div style="font-size:2rem">🎬</div>
+      <div>Drop a video here, or <u>click to browse</u></div>
+      <div class="note" style="margin-top:6px">MP4 / WebM / MOV — stays on your device, never uploaded</div>
+    </div>
+    <div id="stageWrap">
+      <div id="stage">
+        <video id="video" playsinline controls></video>
+        <div id="cap" class="bottom"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="transcribeCard">
+    <h2><span class="step">2</span>Transcribe</h2>
+    <div class="row">
+      <div class="field"><label>AI model</label>
+        <select id="model">
+          <option value="tiny">tiny — fastest (~40MB)</option>
+          <option value="base" selected>base — recommended (~150MB)</option>
+          <option value="small">small — best quality (~500MB)</option>
+        </select>
+      </div>
+      <div class="field"><label>Spoken language</label>
+        <select id="lang">
+          <option value="en" selected>English (recommended)</option>
+          <option value="hi">Hindi / हिन्दी</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="pt">Portuguese</option>
+          <option value="auto">Auto-detect (experimental)</option>
+        </select>
+      </div>
+      <div class="field" style="justify-content:flex-end"><label>&nbsp;</label>
+        <button id="go">✨ Generate captions</button>
+      </div>
+    </div>
+    <div class="note" style="margin-top:8px">First run downloads the AI model once (~150MB for base), then it's cached. Transcription runs fully offline after that.</div>
+    <div id="prog"><div></div></div>
+    <div id="status"></div>
+    <div id="stats"></div>
+    <div id="debugline"></div>
+  </div>
+
+  <div class="card hidden" id="editCard">
+    <h2><span class="step">3</span>Review &amp; fix the transcript</h2>
+    <div class="note" style="margin-bottom:10px">Click any caption to edit its text. Timings adjust automatically. <span class="kbd">Play</span> the video above to preview karaoke.</div>
+    <div id="phrases"></div>
+  </div>
+
+  <div class="card hidden" id="styleCard">
+    <h2><span class="step">4</span>Style your captions</h2>
+    <div class="style-grid">
+      <div class="field"><label>Font</label>
+        <select id="font">
+          <option value="system-ui">System</option>
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Georgia">Georgia</option>
+          <option value="'Comic Sans MS'">Comic Sans</option>
+          <option value="Impact">Impact</option>
+          <option value="monospace">Monospace</option>
+        </select>
+      </div>
+      <div class="field"><label>Size (<span id="sizeVal">42</span>px)</label>
+        <input type="range" id="size" min="20" max="90" value="42">
+      </div>
+      <div class="field"><label>Text color</label><input type="color" id="color" value="#ffffff"></div>
+      <div class="field"><label>Highlight color</label><input type="color" id="hlcolor" value="#ffd23f"></div>
+      <div class="field"><label>Background</label><input type="color" id="bgcolor" value="#000000"></div>
+      <div class="field"><label>Background opacity (<span id="bgopVal">55</span>%)</label>
+        <input type="range" id="bgop" min="0" max="90" value="55">
+      </div>
+      <div class="field"><label>Position</label>
+        <select id="pos">
+          <option value="bottom" selected>Bottom</option>
+          <option value="middle">Middle</option>
+          <option value="top">Top</option>
+        </select>
+      </div>
+      <div class="field"><label>Words per caption</label>
+        <select id="wpc">
+          <option value="auto" selected>Auto (by pauses)</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="exportCard">
+    <h2><span class="step">5</span>Export video with burned-in captions</h2>
+    <div class="row">
+      <button id="exportBtn">⬇️ Export MP4</button>
+      <span class="note">Renders captions into the video in your browser. Needs Chrome/Edge (WebCodecs).</span>
+    </div>
+    <div id="progExport" class="hidden"><div id="prog"><div></div></div></div>
+    <div id="exportStatus" class="note" style="margin-top:8px"></div>
+    <details>
+      <summary>How export works (nerdy details)</summary>
+      <div class="note" style="margin-top:6px">Your video is decoded frame-by-frame with WebCodecs, each caption is drawn onto a canvas, and frames are re-encoded to H.264 + AAC into a new MP4 — all locally. Nothing is uploaded.</div>
+    </details>
+  </div>
+
+</main>
+<footer>
+  CaptionPop is free &amp; open source (MIT). Your video never leaves this browser tab.<br>
+  Made with Whisper AI running 100% locally via Transformers.js.
+</footer>
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+env.allowLocalModels = false;
+
+// ============================== STATE ==============================
+const $ = id => document.getElementById(id);
+const video = $('video'), capEl = $('cap');
+let words = [];        // {text, start, end} in transcript order, monotonic times
+let phrases = [];      // arrays of word indices
+let transcriber = null, currentModel = '';
+
+const style = {
+  font: 'system-ui', size: 42, color: '#ffffff', hl: '#ffd23f',
+  bgcolor: '#000000', bgop: 0.55, pos: 'bottom', wpc: 'auto'
+};
+
+// ============================== UPLOAD ==============================
+const drop = $('drop'), fileInput = $('file');
+drop.onclick = () => fileInput.click();
+['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) loadVideo(f); });
+fileInput.onchange = () => { const f = fileInput.files[0]; if (f) loadVideo(f); };
+
+function loadVideo(f) {
+  video.src = URL.createObjectURL(f);
+  $('stageWrap').style.display = 'block';
+  $('transcribeCard').classList.remove('hidden');
+  setStatus(`Loaded "${f.name}" — pick a model and hit Generate captions.`);
+  words = []; phrases = []; capEl.innerHTML = '';
+  for (const id of ['editCard','styleCard','exportCard']) $(id).classList.add('hidden');
+  $('phrases').innerHTML = '';
+}
+
+// ============================== AUDIO ==============================
+async function extractAudio16k(file) {
+  const buf = await file.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const actx = new AC();
+  const decoded = await actx.decodeAudioData(buf);
+  const targetLen = Math.floor(decoded.duration * 16000);
+  const off = new OfflineAudioContext(1, targetLen, 16000);
+  const src = off.createBufferSource();
+  src.buffer = decoded; src.connect(off.destination); src.start();
+  const rendered = await off.startRendering();
+  actx.close();
+  return rendered.getChannelData(0);
+}
+
+// ============================== TRANSCRIBE ==============================
+const MODELS = { tiny: 'Xenova/whisper-tiny', base: 'Xenova/whisper-base', small: 'Xenova/whisper-small' };
+$('go').onclick = async () => {
+  const file = fileInput.files[0] || (video.src ? true : null);
+  if (!video.src) { setStatus('Please drop a video first.'); return; }
+  const modelKey = $('model').value, langSel = $('lang').value;
+  const btn = $('go'); btn.disabled = true;
+  showProg(true); setStatus('Loading AI model… (first run downloads it, then cached)');
+  try {
+    if (!transcriber || currentModel !== modelKey) {
+      transcriber = await pipeline('automatic-speech-recognition', MODELS[modelKey], {
+        progress_callback: p => {
+          if (p.status === 'progress') setStatus(`Downloading model… ${Math.round(p.progress || 0)}%`);
+        }
+      });
+      currentModel = modelKey;
+    }
+    setStatus('Extracting audio…');
+    // re-fetch the file bytes from the object URL
+    const resp = await fetch(video.src);
+    const blob = await resp.blob();
+    const audio = await extractAudio16k(new File([blob], 'video', { type: blob.type }));
+    setStatus('Transcribing… this runs fully on your device.');
+    const opts = { return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5 };
+    if (langSel === 'auto') { opts.task = 'transcribe'; } // let model detect
+    else { opts.language = langSel; opts.task = 'transcribe'; }
+    const out = await transcriber(audio, opts);
+    let chunks = out.chunks || [];
+    const hasWordTs = chunks.length && chunks[0].timestamp;
+    words = chunks.filter(c => c.text && c.text.trim()).map(c => ({
+      text: c.text.trim(),
+      start: hasWordTs ? c.timestamp[0] : 0,
+      end: hasWordTs ? c.timestamp[1] : 0
+    }));
+    if (!hasWordTs && words.length) {
+      // fallback: spread evenly across duration
+      const d = video.duration || 10;
+      words.forEach((w, i) => { w.start = i * d / words.length; w.end = (i + 1) * d / words.length; });
+    }
+    // Monotonic fix: keep transcript order, never go back in time (seam noise)
+    let prevStart = -Infinity;
+    for (const w of words) {
+      if (!(w.start >= prevStart)) w.start = prevStart < 0 ? 0 : prevStart;
+      if (!(w.end > w.start)) w.end = w.start + 0.3;
+      prevStart = w.start;
+    }
+    const vdur = video.duration || Infinity;
+    for (const w of words) { if (w.start > vdur) w.start = vdur; if (w.end > vdur) w.end = vdur; }
+
+    buildPhrases();
+    renderPhraseEditor();
+    applyStyle();
+    showProg(false);
+    $('stats').textContent = `✅ ${words.length} words • ${phrases.length} captions • playing the video previews karaoke`;
+    $('editCard').classList.remove('hidden');
+    $('styleCard').classList.remove('hidden');
+    $('exportCard').classList.remove('hidden');
+    setStatus('Done! Play the video to preview, edit any caption, style it, then export.');
+  } catch (e) {
+    console.error(e);
+    setStatus('❌ ' + (e.message || e));
+    showProg(false);
+  }
+  btn.disabled = false;
+};
+
+function setStatus(t) { $('status').textContent = t; }
+function showProg(on) { $('prog').style.display = on ? 'block' : 'none'; if (on) $('prog').firstElementChild.style.width = '40%'; }
+
+// ============================== PHRASES ==============================
+function buildPhrases() {
+  phrases = [];
+  const wpc = style.wpc === 'auto' ? Infinity : parseInt(style.wpc);
+  let cur = [];
+  for (let i = 0; i < words.length; i++) {
+    cur.push(i);
+    const w = words[i];
+    const gap = i + 1 < words.length ? words[i + 1].start - w.end : 99;
+    if (/[.!?…]+$/.test(w.text) || gap > 0.7 || cur.length >= Math.min(wpc, 12)) {
+      phrases.push(cur); cur = [];
+    }
+  }
+  if (cur.length) phrases.push(cur);
+  // hard re-split when user picks fixed words-per-caption
+  if (style.wpc !== 'auto') {
+    const flat = phrases.flat();
+    phrases = [];
+    for (let i = 0; i < flat.length; i += wpc) phrases.push(flat.slice(i, i + wpc));
+  }
+}
+
+// ============================== PHRASE EDITOR ==============================
+function fmtT(s) {
+  s = Math.max(0, s);
+  const m = Math.floor(s / 60), sec = (s % 60).toFixed(1).padStart(4, '0');
+  return `${m}:${sec}`;
+}
+function renderPhraseEditor() {
+  const box = $('phrases'); box.innerHTML = '';
+  phrases.forEach((ph, pi) => {
+    const row = document.createElement('div');
+    row.className = 'phrase-row';
+    const t0 = words[ph[0]].start, t1 = words[ph[ph.length - 1]].end;
+    row.innerHTML = `<div class="time">${fmtT(t0)} → ${fmtT(t1)}</div>`;
+    const ta = document.createElement('textarea');
+    ta.value = ph.map(i => words[i].text).join(' ');
+    ta.rows = 2;
+    ta.onchange = () => {
+      const newWords = ta.value.trim().split(/\s+/).filter(Boolean);
+      if (!newWords.length) return;
+      // redistribute this phrase's time range across the new words
+      const span = Math.max(0.3, t1 - t0);
+      const oldIdx = phrases[pi];
+      const newObjs = newWords.map((tw, k) => ({
+        text: tw,
+        start: t0 + span * k / newWords.length,
+        end: t0 + span * (k + 1) / newWords.length
+      }));
+      words.splice(oldIdx[0], oldIdx.length, ...newObjs);
+      buildPhrases(); renderPhraseEditor();
+    };
+    row.appendChild(ta);
+    box.appendChild(row);
+  });
+}
+
+// ============================== STYLE ==============================
+function applyStyle(rebuildPhrases) {
+  style.font = $('font').value; style.size = +$('size').value;
+  style.color = $('color').value; style.hl = $('hlcolor').value;
+  style.bgcolor = $('bgcolor').value; style.bgop = +$('bgop').value / 100;
+  style.pos = $('pos').value; style.wpc = $('wpc').value;
+  $('sizeVal').textContent = style.size;
+  $('bgopVal').textContent = $('bgop').value;
+  capEl.className = style.pos;
+  capEl.style.fontFamily = style.font;
+  capEl.style.fontSize = Math.round(style.size * 0.55) + 'px'; // preview scale
+  if (rebuildPhrases) { buildPhrases(); renderPhraseEditor(); }
+}
+for (const id of ['font','size','color','hlcolor','bgcolor','bgop','pos'])
+  $(id).addEventListener('input', () => applyStyle(false));
+$('wpc').addEventListener('input', () => applyStyle(true));
+
+function hexA(hex, a) {
+  const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ============================== KARAOKE PREVIEW ==============================
+video.addEventListener('timeupdate', () => {
+  if (!words.length || !phrases.length) return;
+  const t = video.currentTime;
+  const lastW = words[words.length - 1];
+  if (t > lastW.end + 2.0) { capEl.innerHTML = ''; return; }
+  let pIdx = -1;
+  for (let p = 0; p < phrases.length; p++) {
+    if (words[phrases[p][0]].start <= t + 0.05) pIdx = p; else break;
+  }
+  if (pIdx === -1) { capEl.innerHTML = ''; return; }
+  const shown = phrases[pIdx].filter(i => words[i].start <= t + 0.05);
+  if (!shown.length) { capEl.innerHTML = ''; return; }
+  let active = shown[shown.length - 1];
+  for (const i of shown) {
+    if (t >= words[i].start && t < words[i].end) { active = i; break; }
+  }
+  capEl.innerHTML = '';
+  for (const i of shown) {
+    const sp = document.createElement('span');
+    sp.className = 'w' + (i === active ? ' active' : '');
+    sp.style.color = i === active ? style.hl : style.color;
+    sp.style.background = hexA(style.bgcolor, style.bgop);
+    sp.style.borderRadius = '6px';
+    sp.style.padding = '2px 4px';
+    sp.textContent = words[i].text;
+    capEl.appendChild(sp);
+    capEl.appendChild(document.createTextNode(' '));
+  }
+});
+
+// ============================== CANVAS CAPTION RENDERER (preview + export share this) ==============================
+// Returns {lines:[{words:[{text,active}], }]} layout for a given time t — used by export.
+function captionLayoutAt(t) {
+  if (!words.length || !phrases.length) return null;
+  const lastW = words[words.length - 1];
+  if (t > lastW.end + 2.0) return null;
+  let pIdx = -1;
+  for (let p = 0; p < phrases.length; p++) {
+    if (words[phrases[p][0]].start <= t + 0.05) pIdx = p; else break;
+  }
+  if (pIdx === -1) return null;
+  const shown = phrases[pIdx].filter(i => words[i].start <= t + 0.05);
+  if (!shown.length) return null;
+  let active = shown[shown.length - 1];
+  for (const i of shown) {
+    if (t >= words[i].start && t < words[i].end) { active = i; break; }
+  }
+  return shown.map(i => ({ text: words[i].text, active: i === active }));
+}
+
+function drawCaptionOnCanvas(ctx, W, H, layout) {
+  if (!layout || !layout.length) return;
+  const fs = Math.round(H * (style.size / 1280)); // scale with video height
+  ctx.font = `800 ${fs}px ${style.font}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // measure full line
+  const full = layout.map(w => w.text).join(' ');
+  const tw = ctx.measureText(full).width;
+  const maxW = W * 0.92;
+  const scale = tw > maxW ? maxW / tw : 1;
+  const y = style.pos === 'top' ? H * 0.12 : style.pos === 'middle' ? H * 0.5 : H * 0.86;
+  ctx.save();
+  ctx.translate(W / 2, y);
+  ctx.scale(scale, scale);
+  // draw word by word centered
+  const widths = layout.map(w => ctx.measureText(w.text).width);
+  const spaceW = ctx.measureText(' ').width;
+  const total = widths.reduce((a, b) => a + b, 0) + spaceW * (widths.length - 1);
+  let x = -total / 2;
+  ctx.textAlign = 'left';
+  layout.forEach((w, k) => {
+    const ww = widths[k];
+    if (style.bgop > 0.01) {
+      ctx.fillStyle = hexA(style.bgcolor, style.bgop);
+      const pad = fs * 0.18;
+      ctx.fillRect(x - pad / 2, -fs * 0.62, ww + pad, fs * 1.24);
+    }
+    ctx.lineWidth = Math.max(2, fs * 0.06);
+    ctx.strokeStyle = 'rgba(0,0,0,0.65)';
+    ctx.strokeText(w.text, x, 0);
+    ctx.fillStyle = w.active ? style.hl : style.color;
+    ctx.fillText(w.text, x, 0);
+    x += ww + spaceW;
+  });
+  ctx.restore();
+}
+
+// ============================== EXPORT (WebCodecs MP4) ==============================
+function setExportStatus(t) { $('exportStatus').textContent = t; }
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) return res();
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('Failed to load ' + src));
+    document.head.appendChild(s);
+  });
+}
+function downloadBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+
+function demuxVideo(arrayBuffer) {
+  return new Promise((resolve, reject) => {
+    const mp4boxfile = window.MP4Box.createFile();
+    let videoTrack = null;
+    const samples = [];
+    let done = false;
+    mp4boxfile.onReady = (info) => {
+      videoTrack = (info.tracks || []).find(t => t.type === 'video');
+      if (!videoTrack) { reject(new Error('No video track found in this file.')); return; }
+      mp4boxfile.setExtractionOptions(videoTrack.id, null, { nbSamples: Infinity });
+      mp4boxfile.start();
+    };
+    mp4boxfile.onSamples = (id, user, samps) => {
+      if (done || !videoTrack || id !== videoTrack.id) return;
+      samples.push(...samps);
+      if (samples.length >= videoTrack.nb_samples) {
+        done = true;
+        try { resolve({ videoTrack, videoSamples: samples, videoConfig: getVideoDecoderConfig(mp4boxfile, videoTrack) }); }
+        catch (e) { reject(e); }
+      }
+    };
+    mp4boxfile.onError = (e) => reject(new Error('Could not read video file: ' + e));
+    try {
+      arrayBuffer.fileStart = 0;
+      mp4boxfile.appendBuffer(arrayBuffer);
+      mp4boxfile.flush();
+    } catch (e) { reject(e); }
+    setTimeout(() => { if (!done) reject(new Error('Timed out reading video file.')); }, 30000);
+  });
+}
+
+function getVideoDecoderConfig(mp4boxfile, track) {
+  const trak = mp4boxfile.getTrackById(track.id);
+  const entry = trak.mdia.minf.stbl.stsd.entries[0];
+  const codecBox = entry.avcC || entry.hvcC;
+  if (!codecBox) throw new Error('Only H.264/AVC videos are supported for export. Your video uses ' + (entry.type || 'an unknown codec') + '.');
+  const stream = new window.DataStream();
+  stream.endianness = window.DataStream.BIG_ENDIAN;
+  codecBox.write(stream);
+  const full = new Uint8Array(stream.buffer);
+  const description = full.slice(8);
+  let codec = track.codec || 'avc1.640028';
+  if (/^avc1/.test(codec) === false && description.length >= 4) {
+    codec = 'avc1.' + description[1].toString(16).padStart(2, '0') + description[2].toString(16).padStart(2, '0') + description[3].toString(16).padStart(2, '0');
+  }
+  return {
+    codec,
+    codedWidth: track.video.width,
+    codedHeight: track.video.height,
+    description
+  };
+}
+
+async function encodeAudioToMuxer(muxer, fileBuffer, onProgress) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const actx = new AC({ sampleRate: 48000 });
+  let decoded;
+  try { decoded = await actx.decodeAudioData(fileBuffer.slice(0)); }
+  finally { actx.close(); }
+  const audioEncoder = new AudioEncoder({
+    output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+    error: (e) => { throw e; }
+  });
+  audioEncoder.configure({ codec: 'mp4a.40.2', sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 });
+  const len = decoded.length;
+  const ch0 = decoded.getChannelData(0);
+  const ch1 = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : ch0;
+  const CH = 2048;
+  for (let off = 0; off < len; off += CH) {
+    const n = Math.min(CH, len - off);
+    const inter = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) { inter[i * 2] = ch0[off + i]; inter[i * 2 + 1] = ch1[off + i]; }
+    const ad = new AudioData({
+      format: 'f32', sampleRate: 48000,
+      numberOfFrames: n, numberOfChannels: 2,
+      timestamp: Math.round(off * 1e6 / 48000),
+      data: inter.buffer
+    });
+    audioEncoder.encode(ad);
+    ad.close();
+    if (off % (CH * 20) === 0 && onProgress) onProgress(off / len);
+  }
+  await audioEncoder.flush();
+  audioEncoder.close();
+}
+
+$('exportBtn').onclick = async () => {
+  const btn = $('exportBtn');
+  if (!words.length) { setExportStatus('Generate captions first (step 2).'); return; }
+  if (!('VideoEncoder' in window) || !('VideoDecoder' in window) || !('AudioEncoder' in window)) {
+    setExportStatus('❌ This browser does not support WebCodecs. Please use Chrome or Edge on desktop.');
+    return;
+  }
+  btn.disabled = true;
+  try {
+    setExportStatus('Loading video tools…');
+    await loadScript('https://cdn.jsdelivr.net/npm/mp4box@0.5.2/dist/mp4box.all.min.js');
+    const { Muxer, ArrayBufferTarget } = await import('mp4-muxer');
+
+    setExportStatus('Reading your video…');
+    const resp = await fetch(video.src);
+    const fileBuf = await resp.arrayBuffer();
+    const { videoTrack, videoSamples, videoConfig } = await demuxVideo(fileBuf);
+
+    const W = videoConfig.codedWidth, H = videoConfig.codedHeight;
+    setExportStatus(`Rendering ${videoSamples.length} frames with burned-in captions… (this takes a bit)`);
+    const muxer = new Muxer({
+      target: new ArrayBufferTarget(),
+      video: { codec: 'avc', width: W, height: H },
+      audio: { codec: 'aac', sampleRate: 48000, numberOfChannels: 2 },
+      fastStart: 'in-memory',
+      firstTimestampBehavior: 'offset'
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    let framesDone = 0;
+    const videoEncoder = new VideoEncoder({
+      output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+      error: (e) => { throw e; }
+    });
+    videoEncoder.configure({ codec: videoConfig.codec, width: W, height: H, bitrate: 10_000_000, framerate: 30 });
+
+    await new Promise(async (resolve, reject) => {
+      const decoder = new VideoDecoder({
+        output: (frame) => {
+          try {
+            ctx.drawImage(frame, 0, 0, W, H);
+            drawCaptionOnCanvas(ctx, W, H, captionLayoutAt(frame.timestamp / 1e6));
+            // IMPORTANT: canvas se naya VideoFrame banao (caption ke saath),
+            // warna original bina-caption wala frame encode ho jayega!
+            const ts = frame.timestamp, dur = frame.duration;
+            frame.close();
+            const outFrame = new VideoFrame(canvas, { timestamp: ts, duration: dur || undefined });
+            videoEncoder.encode(outFrame, { keyFrame: framesDone % 90 === 0 });
+            outFrame.close();
+          } catch (e) { reject(e); return; }
+          framesDone++;
+          if (framesDone % 60 === 0) setExportStatus(`Rendering video… ${Math.min(74, Math.round(framesDone / videoSamples.length * 75))}%`);
+        },
+        error: (e) => reject(e)
+      });
+      try {
+        decoder.configure(videoConfig);
+        for (const s of videoSamples) {
+          decoder.decode(new EncodedVideoChunk({
+            type: s.is_sync ? 'key' : 'delta',
+            timestamp: Math.round(s.cts * 1e6 / s.timescale),
+            duration: Math.round(s.duration * 1e6 / s.timescale),
+            data: s.data
+          }));
+        }
+        // flush() forces the decoder to emit held-back frames (B-frame reorder),
+        // otherwise the last few frames never arrive and export hangs near 72-75%.
+        await decoder.flush();
+        await videoEncoder.flush();
+        decoder.close();
+        resolve();
+      } catch (e) { reject(e); }
+    });
+    videoEncoder.close();
+
+    setExportStatus('Encoding audio… 85%');
+    await encodeAudioToMuxer(muxer, fileBuf, (p) => setExportStatus(`Encoding audio… ${Math.round(85 + p * 10)}%`));
+
+    setExportStatus('Finalizing MP4…');
+    muxer.finalize();
+    downloadBlob(new Blob([muxer.target.buffer], { type: 'video/mp4' }), 'captionpop-captioned.mp4');
+    setExportStatus('✅ Done! Your captioned MP4 has been downloaded. Check it and tell me how it looks.');
+  } catch (e) {
+    console.error(e);
+    setExportStatus('❌ Export failed: ' + (e.message || e));
+  }
+  btn.disabled = false;
+};
+</script>
+</body>
+</html>
