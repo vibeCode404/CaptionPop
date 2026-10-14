@@ -8,7 +8,7 @@ No upload. No account. No watermark. No subscription.
 
 Your video never leaves your device. AI transcription runs entirely locally.
 
-[Try the demo](#-try-it) · [How it works](#-how-it-works) · [Privacy](#-privacy)
+[🎬 Try the live demo](https://vibecode404.github.io/CaptionPop/) · [How it works](#-how-it-works) · [Privacy](#-privacy)
 
 </div>
 
@@ -24,7 +24,9 @@ Your video never leaves your device. AI transcription runs entirely locally.
 
 ## 🚀 Try it
 
-No install. No build step. Just open `index.html` in Chrome or Edge.
+**🎬 Live demo: https://vibecode404.github.io/CaptionPop/**
+
+No install. No build step. Just open the link in Chrome or Edge (or open `index.html` locally).
 
 > First run downloads the AI model once (~150MB), then it's cached and works fully offline.
 
