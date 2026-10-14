@@ -70,3 +70,16 @@ Just edit and refresh. To test export you need Chrome/Edge (WebCodecs).
 ## 📄 License
 
 MIT — do whatever you want with it.
+
+
+## ⚡ Built in a day
+
+This entire project went from idea to launch in ~12 hours on Oct 13, 2026:
+
+- **Morning** — Idea + competitive research + CapCut paywall verification
+- **Afternoon** — Whisper transcription spike, validated word-perfect with karaoke timing
+- **Afternoon** — Full app built (single HTML file, 29KB)
+- **Evening** — Bug fixes (export pipeline, audio encoding, burned-in captions)
+- **Night** — Shipped to GitHub + live demo on GitHub Pages
+
+*vibeCode404. You can't find me.* 🥷
