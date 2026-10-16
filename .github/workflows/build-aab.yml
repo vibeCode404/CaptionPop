@@ -49,8 +49,8 @@ jobs:
           npx cap add android
           npx cap sync android
           # Fix minSdkVersion to 24 (Play requires 24+)
-          sed -i "s/minSdkVersion.*/minSdkVersion 24/" android/variables.gradle || echo "variables.gradle not found, trying build.gradle"
-          grep -r "minSdkVersion" android/ | head -5
+          sed -i "s/minSdkVersion = 23/minSdkVersion = 24/" android/variables.gradle
+          grep "minSdkVersion" android/variables.gradle
 
       - name: Generate upload keystore
         run: |
