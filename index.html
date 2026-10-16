@@ -60,6 +60,8 @@ label{font-size:.85rem;color:var(--muted)}
 #prog{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:10px;display:none}
 #prog div{height:100%;width:0;background:var(--accent2);transition:width .2s}
 #status{color:var(--muted);font-size:.9rem;margin-top:8px;min-height:1.4em}
+#status.working::after{content:'';display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid var(--muted);border-top-color:var(--acc);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 #stats{color:#7dffa8;font-size:.85rem;margin-top:6px}
 #debugline{color:#666;font-size:.75rem;margin-top:6px;word-break:break-all;display:none}
 #phrases{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto}
@@ -115,21 +117,31 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
   <div class="card hidden" id="transcribeCard">
     <h2><span class="step">2</span>Transcribe</h2>
     <div class="row">
-      <div class="field"><label>AI model</label>
-        <select id="model">
+      <div class="field" style="display:none;"><label>AI model</label>
+        <select id="model" style="display:none;">
           <option value="tiny">tiny — fastest (~40MB)</option>
           <option value="base" selected>base — recommended (~150MB)</option>
           <option value="small">small — best quality (~500MB)</option>
+          <option value="hindi">Hindi — हिन्दी model (~150MB)</option>
         </select>
       </div>
       <div class="field"><label>Spoken language</label>
         <select id="lang">
-          <option value="en" selected>English (recommended)</option>
-          <option value="hi">Hindi / हिन्दी</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="de">German</option>
-          <option value="pt">Portuguese</option>
+          <option value="en" selected>English</option>
+          <option value="hi">Hindi — Hinglish (Roman script)</option>
+          <option value="es">Spanish / Español</option>
+          <option value="fr">French / Français</option>
+          <option value="pt">Portuguese / Português</option>
+          <option value="de">German / Deutsch</option>
+          <option value="it">Italian / Italiano</option>
+          <option value="nl">Dutch / Nederlands</option>
+          <option value="pl">Polish / Polski</option>
+          <option value="ru">Russian / Русский</option>
+          <option value="ja">Japanese / 日本語</option>
+          <option value="ko">Korean / 한국어</option>
+          <option value="zh">Mandarin / 普通话</option>
+          <option value="ca">Catalan / Català</option>
+          <option value="id">Indonesian / Bahasa Indonesia</option>
           <option value="auto">Auto-detect (experimental)</option>
         </select>
       </div>
@@ -232,7 +244,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
   Made with Whisper AI running 100% locally via Transformers.js.
 </footer>
 <script type="module">
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1';
 // Use bundled models if present (mobile APK), fallback to CDN otherwise
 env.localModelPath = './models/';
 env.allowRemoteModels = true;
@@ -320,7 +332,7 @@ function loadVideo(f) {
   video.src = URL.createObjectURL(f);
   $('stageWrap').style.display = 'block';
   $('transcribeCard').classList.remove('hidden');
-  setStatus(`Loaded "${f.name}" — pick a model and hit Generate captions.`);
+  setStatus(`Loaded "${f.name}" — pick a language and hit Generate captions.`);
   words = []; phrases = []; capEl.innerHTML = '';
   for (const id of ['editCard','styleCard','exportCard']) $(id).classList.add('hidden');
   $('phrases').innerHTML = '';
@@ -379,20 +391,30 @@ function cleanHindiWords() {
 }
 
 // ============================== TRANSCRIBE ==============================
-const MODELS = { tiny: 'Xenova/whisper-tiny', base: 'Xenova/whisper-base', small: 'Xenova/whisper-small' };
+const MODELS = { tiny: 'Xenova/whisper-tiny', base: 'Xenova/whisper-base', small: 'Xenova/whisper-small', hindi: 'onnx-community/whisper-hindi-small-ONNX', hinglish: 'mahajanGaurav/whisper-hinglish-tiny-onnx' };
 $('go').onclick = async () => {
   const file = fileInput.files[0] || (video.src ? true : null);
   if (!video.src) { setStatus('Please drop a video first.'); return; }
-  const modelKey = $('model').value, langSel = $('lang').value;
+  const langSel = $('lang').value;
+  // Auto-pick model based on language — user never touches this
+  // Hindi uses the Hinglish model (Hindi audio → Roman-script Hinglish captions)
+  const modelKey = (langSel === 'hi') ? 'hinglish' : 'base';
   const btn = $('go'); btn.disabled = true;
-  showProg(true); setStatus('Loading AI model… (first run downloads it, then cached)');
+  showProg(true); setStatus('⏳ Loading AI model… (first run downloads it, then cached)');
   try {
     if (!transcriber || currentModel !== modelKey) {
+      let lastProg = 0;
       transcriber = await pipeline('automatic-speech-recognition', MODELS[modelKey], {
         progress_callback: p => {
-          if (p.status === 'progress') setStatus(`Downloading model… ${Math.round(p.progress || 0)}%`);
+          if (p.status === 'progress') {
+            lastProg = Math.round(p.progress || 0);
+            setStatus(`⏳ Downloading model… ${lastProg}%`);
+          } else if (p.status === 'done') {
+            setStatus('⏳ Model downloaded! Loading into memory… (this takes a minute)');
+          }
         }
       });
+      setStatus('⏳ Model ready! Starting transcription…');
       currentModel = modelKey;
     }
     setStatus('Extracting audio…');
@@ -401,7 +423,8 @@ $('go').onclick = async () => {
     const blob = await resp.blob();
     const audio = await extractAudio16k(new File([blob], 'video', { type: blob.type }));
     setStatus('Transcribing… this runs fully on your device.');
-    const opts = { return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5 };
+    // Hinglish model wasn't exported with output_attentions, so word timestamps aren't available — use segments
+    const opts = { return_timestamps: (modelKey === 'hinglish' ? true : 'word'), chunk_length_s: 30, stride_length_s: 5 };
     if (langSel === 'auto') { opts.task = 'transcribe'; } // let model detect
     else { opts.language = langSel; opts.task = 'transcribe'; }
     const out = await transcriber(audio, opts);
@@ -412,6 +435,17 @@ $('go').onclick = async () => {
       start: hasWordTs ? c.timestamp[0] : 0,
       end: hasWordTs ? c.timestamp[1] : 0
     }));
+    // Hinglish fix: if model returned everything as one giant chunk, split into words
+    if (words.length === 1 && words[0].text.split(/\s+/).length > 8) {
+      const bigW = words[0];
+      const tokens = bigW.text.split(/\s+/).filter(t => t);
+      const dur = (bigW.end > bigW.start) ? (bigW.end - bigW.start) : (video.duration || 10);
+      words = tokens.map((t, i) => ({
+        text: t,
+        start: bigW.start + (i * dur / tokens.length),
+        end: bigW.start + ((i + 1) * dur / tokens.length)
+      }));
+    }
     if (!hasWordTs && words.length) {
       // fallback: spread evenly across duration
       const d = video.duration || 10;
@@ -447,7 +481,7 @@ $('go').onclick = async () => {
   btn.disabled = false;
 };
 
-function setStatus(t) { $('status').textContent = t; }
+function setStatus(t) { const s = $('status'); s.textContent = t; s.classList.toggle('working', /⏳/.test(t)); }
 function showProg(on) { $('prog').style.display = on ? 'block' : 'none'; if (on) $('prog').firstElementChild.style.width = '40%'; }
 
 // ============================== PHRASES ==============================
