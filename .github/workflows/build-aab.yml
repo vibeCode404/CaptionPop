@@ -50,7 +50,9 @@ jobs:
           npx cap sync android
           # Fix minSdkVersion to 24 (Play requires 24+)
           sed -i "s/minSdkVersion = 23/minSdkVersion = 24/" android/variables.gradle
-          grep "minSdkVersion" android/variables.gradle
+          # Fix targetSdkVersion to 36 (Play requires 36+ in 2026)
+          sed -i "s/targetSdkVersion = 35/targetSdkVersion = 36/" android/variables.gradle
+          grep -E "minSdkVersion|targetSdkVersion" android/variables.gradle
 
       - name: Restore upload keystore from secret
         run: |
