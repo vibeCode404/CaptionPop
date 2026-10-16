@@ -52,7 +52,10 @@ jobs:
           sed -i "s/minSdkVersion = 23/minSdkVersion = 24/" android/variables.gradle
           # Fix targetSdkVersion to 36 (Play requires 36+ in 2026)
           sed -i "s/targetSdkVersion = 35/targetSdkVersion = 36/" android/variables.gradle
+          # Bump versionCode dynamically (run number avoids "already used" errors)
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" android/app/build.gradle
           grep -E "minSdkVersion|targetSdkVersion" android/variables.gradle
+          grep "versionCode" android/app/build.gradle | head -2
 
       - name: Restore upload keystore from secret
         run: |
