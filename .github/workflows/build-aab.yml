@@ -52,13 +52,11 @@ jobs:
           sed -i "s/minSdkVersion = 23/minSdkVersion = 24/" android/variables.gradle
           grep "minSdkVersion" android/variables.gradle
 
-      - name: Generate upload keystore
+      - name: Restore upload keystore from secret
         run: |
-          keytool -genkeypair -v -keystore upload.keystore \
-            -alias captionpop -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass captionpop123 -keypass captionpop123 \
-            -dname "CN=vibeCode404, OU=CaptionPop, O=vibeCode404, L=Unknown, ST=Unknown, C=US"
-          echo "Keystore generated"
+          echo "${{ secrets.UPLOAD_KEYSTORE }}" | base64 -d > upload.keystore
+          echo "Keystore restored from secret"
+          keytool -list -v -keystore upload.keystore -storepass captionpop123 2>&1 | grep "SHA1" | head -2
 
       - name: Configure signing
         run: |
