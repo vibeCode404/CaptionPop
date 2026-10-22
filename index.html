@@ -52,9 +52,9 @@ input[type=color]{width:44px;height:36px;padding:2px;border:1px solid var(--bord
 input[type=range]{accent-color:var(--accent2)}
 label{font-size:.85rem;color:var(--muted)}
 .field{display:flex;flex-direction:column;gap:4px;min-width:120px}
-#drop{border:2px dashed var(--border);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:.2s}
+#drop{display:block;border:2px dashed var(--border);border-radius:var(--radius);padding:34px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:.2s}
 #drop:hover,#drop.over{border-color:var(--accent2);color:var(--text);background:#161a25}
-#drop input{display:none}
+#drop input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 #stageWrap{display:none;margin-top:14px}
 #stage{position:relative;width:100%;max-width:420px;margin:0 auto;background:#000;border-radius:10px;overflow:hidden;aspect-ratio:9/16}
 #stage video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
@@ -144,12 +144,12 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
 
   <div class="card" id="uploadCard">
     <h2><span class="step">1</span>Add your video</h2>
-    <div id="drop">
+    <label id="drop" for="file">
       <input type="file" id="file" accept="video/*">
       <div style="font-size:2rem">🎬</div>
       <div><u>Tap to choose a video</u> (or drop a file here)</div>
       <div class="note" style="margin-top:6px">MP4 / WebM / MOV — stays on your device, never uploaded</div>
-    </div>
+    </label>
     <div id="stageWrap">
       <div id="stage">
         <video id="video" playsinline controls></video>
@@ -402,17 +402,23 @@ $('vttBtn').onclick = async () => {
 
 // ============================== UPLOAD ==============================
 const drop = $('drop'), fileInput = $('file');
-drop.onclick = () => fileInput.click();
+// No JS click-forwarding: #drop is a <label for="file">, so a tap activates
+// the input natively. iOS Safari mishandles pickers opened via script clicks
+// on display:none inputs; the label pattern is the reliable route.
 ['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
 ['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
 drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) loadVideo(f); });
-fileInput.onchange = () => { const f = fileInput.files[0]; if (f) loadVideo(f); };
+fileInput.addEventListener('change', () => { const f = fileInput.files[0]; if (f) loadVideo(f); });
 
 // Export files are named after the source video: abc.mp4 → captionPop-abc.mp4
 let sourceBase = 'video';
+// Keep the picked File itself: re-fetching the blob: URL is flaky in some
+// browsers (notably iOS Safari) — reading the File directly is not.
+let currentFile = null;
 function exportName(ext) { return `captionPop-${sourceBase}.${ext}`; }
 
 function loadVideo(f) {
+  currentFile = f;
   sourceBase = (f.name || 'video').replace(/\.[^.]+$/, '').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'video';
   video.removeAttribute('poster');
   video.src = URL.createObjectURL(f);
@@ -548,10 +554,16 @@ $('go').onclick = async () => {
       currentModel = modelKey;
     }
     setStatus('Extracting audio…');
-    // re-fetch the file bytes from the object URL
-    const resp = await fetch(video.src);
-    const blob = await resp.blob();
-    const audio = await extractAudio16k(new File([blob], 'video', { type: blob.type }));
+    // Read the picked File directly (re-fetching the blob: URL fails on
+    // some browsers, notably iOS Safari). Fall back to the fetch only if
+    // the File reference is somehow gone.
+    let audioFile = currentFile;
+    if (!audioFile) {
+      const resp = await fetch(video.src);
+      const blob = await resp.blob();
+      audioFile = new File([blob], 'video', { type: blob.type });
+    }
+    const audio = await extractAudio16k(audioFile);
     setStatus('Transcribing… this runs fully on your device.');
     // Hinglish model wasn't exported with output_attentions, so word timestamps aren't available — use segments
     const opts = { return_timestamps: (modelKey === 'hinglish' ? true : 'word'), chunk_length_s: 30, stride_length_s: 5 };
@@ -1038,8 +1050,9 @@ $('exportBtn').onclick = async () => {
     const { Muxer, ArrayBufferTarget } = await import('mp4-muxer');
 
     setExportStatus('Reading your video…');
-    const resp = await fetch(video.src);
-    const fileBuf = await resp.arrayBuffer();
+    const fileBuf = currentFile
+      ? await currentFile.arrayBuffer()
+      : await (await fetch(video.src)).arrayBuffer();
     const { videoTrack, videoSamples, videoConfig } = await demuxVideo(fileBuf);
 
     const W = videoConfig.codedWidth, H = videoConfig.codedHeight;
