@@ -3,41 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CaptionPop — Free, private auto-captions in your browser</title>
+<title>CaptionPop — Free, private auto-captions on your device</title>
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#7c3aed">
+<meta name="theme-color" content="#0a0a10">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CaptionPop">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="description" content="CaptionPop adds karaoke-style captions to your videos. 100% in-browser AI — your video never leaves your device. Free, no account, no watermark.">
+<meta name="description" content="CaptionPop adds karaoke-style captions to your videos. 100% on-device AI — your video never leaves your device. Free, no account, no watermark.">
 <style>
 :root{
-  --bg:#0f1115; --panel:#171a21; --panel2:#1e222c; --border:#2a2f3c;
-  --text:#e8eaf0; --muted:#9aa0b4; --accent:#ffd23f; --accent2:#4f8cff;
-  --danger:#ff5d5d; --radius:12px;
+  --bg:#0a0a10; --panel:#12121a; --panel2:#1a1a24; --border:#262633;
+  --text:#e8eaf0; --muted:#9aa0b4; --accent:#ffd23f; --accent2:#f59e0b;
+  --gold1:#f59e0b; --gold2:#fcd34d; --goldtext:#1c1207;
+  --danger:#ff5d5d; --radius:16px;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-header .logo{font-size:1.4rem;font-weight:800;letter-spacing:.5px}
-header .logo span{color:var(--accent)}
-header .tag{color:var(--muted);font-size:.9rem}
-header .roast{font-size:.85rem;color:var(--accent);font-style:italic}
-header .spacer{flex:1}
+header{padding:20px 20px 4px;max-width:1100px;margin:0 auto}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+header .logo{font-size:1.35rem;font-weight:800;letter-spacing:.3px}
+header .logo span{background:linear-gradient(92deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+header .ver{font-size:.72rem;color:var(--muted)}
+.hero{text-align:center;padding:18px 0 8px}
+.heropill{display:inline-block;border:1px solid rgba(245,197,66,.45);background:rgba(245,197,66,.08);color:#f5c542;border-radius:99px;padding:8px 14px;font-size:.8rem;font-weight:600;line-height:1.4}
+.hero h1{font-size:2.05rem;font-weight:800;line-height:1.14;letter-spacing:-.5px;margin:16px 0 0}
+.hero h1 span{background:linear-gradient(92deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.herosub{color:var(--muted);font-size:.95rem;line-height:1.55;margin:12px auto 0;max-width:560px}
+.featgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-width:560px;margin:18px auto 10px;text-align:left}
+.feat{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:11px 12px;font-size:.83rem;font-weight:600}
 .badge{font-size:.75rem;background:#1d3a1d;color:#7dffa8;border:1px solid #2c5c2c;padding:3px 10px;border-radius:99px}
 main{max-width:1100px;margin:0 auto;padding:20px;display:grid;gap:18px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
 .card h2{margin:0 0 12px;font-size:1.05rem}
-.card h2 .step{display:inline-block;background:var(--accent2);color:#fff;font-size:.75rem;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;margin-right:8px}
+.card h2 .step{display:inline-block;background:linear-gradient(135deg,var(--gold1),var(--gold2));color:var(--goldtext);font-size:.75rem;width:22px;height:22px;line-height:22px;text-align:center;border-radius:7px;margin-right:8px;font-weight:800}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button{background:var(--accent2);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:.95rem;cursor:pointer;font-weight:600}
+button{background:linear-gradient(92deg,var(--gold1),var(--gold2));color:var(--goldtext);border:0;border-radius:11px;padding:11px 18px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 14px rgba(245,158,11,.22)}
 button:hover{filter:brightness(1.1)}
 button:disabled{opacity:.45;cursor:default}
-button.ghost{background:var(--panel2);border:1px solid var(--border)}
+button.ghost{background:var(--panel2);border:1px solid var(--border);color:var(--text);box-shadow:none}
 button.warn{background:#3a2a1d;border:1px solid #6b4d2a;color:#ffcf7d}
-select,input[type=text],input[type=number],textarea{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:.95rem}
+select,input[type=text],input[type=number],textarea{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.95rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.83rem;padding:8px 13px;border-radius:99px;background:var(--panel2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:600}
+.chip.on{color:#f5c542;background:#221a0c;border:1.5px solid var(--gold1)}
 input[type=color]{width:44px;height:36px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);cursor:pointer}
 input[type=range]{accent-color:var(--accent2)}
 label{font-size:.85rem;color:var(--muted)}
@@ -55,11 +65,35 @@ label{font-size:.85rem;color:var(--muted)}
 #cap .w.active{color:var(--accent)}
 #cap .w.anim-pop{animation:wordpop .3s ease-out}
 #cap .w.anim-fade{animation:wordfade .4s ease-out}
+#cap .w.anim-karaoke{animation:wordkaraoke .2s ease-out}
+#cap .w.anim-bounce{animation:wordbounce .5s ease-out}
+#cap .w.anim-typewriter{animation:wordtype .4s steps(8) forwards}
+#cap .w.anim-neon{animation:wordneon .3s ease-out}
+#cap .w.anim-underline{animation:wordunder .35s ease-out}
+#cap .w.anim-slide{animation:wordslide .35s ease-out}
+#cap .w.anim-gradient{animation:wordgrad .4s ease-out}
+#cap .w.anim-shake{animation:wordshake .4s ease-out}
+#cap .w.anim-hormozi{animation:wordhormozi .25s ease-out}
+#cap .w.anim-keyword{animation:wordkey .3s ease-out}
+#cap .w.anim-stretch{animation:wordstretch .35s ease-out}
+@keyframes wordkaraoke{0%{color:var(--accent)}100%{color:var(--accent)}}
+@keyframes wordbounce{0%{transform:scale(.3)}50%{transform:scale(1.25)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes wordtype{0%{opacity:0}100%{opacity:1}}
+@keyframes wordneon{0%{text-shadow:0 0 18px var(--accent),0 0 40px var(--accent);transform:scale(1.1)}100%{text-shadow:0 0 6px var(--accent);transform:scale(1)}}
+@keyframes wordunder{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes wordslide{0%{transform:translateY(24px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes wordgrad{0%{transform:scale(.85);opacity:.4}100%{transform:scale(1);opacity:1}}
+@keyframes wordshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes wordhormozi{0%{transform:scale(.7)}100%{transform:scale(1)}}
+@keyframes wordkey{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes wordstretch{0%{transform:scaleX(.3)}60%{transform:scaleX(1.2)}100%{transform:scaleX(1)}}
 @keyframes wordpop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
 @keyframes wordfade{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
 #prog{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:10px;display:none}
 #prog div{height:100%;width:0;background:var(--accent2);transition:width .2s}
 #status{color:var(--muted);font-size:.9rem;margin-top:8px;min-height:1.4em}
+#status:not(:empty){background:#15151d;border:1px solid var(--border);border-radius:12px;padding:9px 12px;color:var(--text)}
+#exportStatus:not(:empty){background:#15151d;border:1px solid var(--border);border-radius:12px;padding:9px 12px;color:var(--text);font-size:.88rem}
 #status.working::after{content:'';display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid var(--muted);border-top-color:var(--acc);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 #stats{color:#7dffa8;font-size:.85rem;margin-top:6px}
@@ -90,20 +124,30 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
 </head>
 <body>
 <header>
-  <div class="logo">Caption<span>Pop</span></div>
-  <div class="tag">Free karaoke captions, 100% in your browser</div>
-  <div class="roast">CapCut put captions behind a paywall. We put them in your browser for $0. Now your video never leaves your device — their paywall never leaves your wallet. 🔓</div>
-  <div class="spacer"></div>
-  <div class="badge">🔒 No upload · No account · No watermark</div>
+  <div class="brandrow">
+    <div class="logo">Caption<span>Pop</span></div>
+    <div class="ver">Free Forever • Open Source</div>
+  </div>
+  <div class="hero">
+    <div class="heropill">🔒 CapCut put captions behind a paywall. We made them 100% free forever.</div>
+    <h1>Free Animated Captions.<br><span>100% On Your Device.</span></h1>
+    <p class="herosub">TikTok-style karaoke captions from your video's audio — the AI runs 100% locally. Your video never leaves your device.</p>
+    <div class="featgrid">
+      <div class="feat">🛡️ No Data Uploads</div>
+      <div class="feat">🙅 No Account Needed</div>
+      <div class="feat">✨ Zero Watermarks</div>
+      <div class="feat">📴 Works Fully Offline</div>
+    </div>
+  </div>
 </header>
 <main>
 
   <div class="card" id="uploadCard">
-    <h2><span class="step">1</span>Drop your video</h2>
+    <h2><span class="step">1</span>Add your video</h2>
     <div id="drop">
       <input type="file" id="file" accept="video/*">
       <div style="font-size:2rem">🎬</div>
-      <div>Drop a video here, or <u>click to browse</u></div>
+      <div><u>Tap to choose a video</u> (or drop a file here)</div>
       <div class="note" style="margin-top:6px">MP4 / WebM / MOV — stays on your device, never uploaded</div>
     </div>
     <div id="stageWrap">
@@ -149,7 +193,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
         <button id="go">✨ Generate captions</button>
       </div>
     </div>
-    <div class="note" style="margin-top:8px">First run downloads the AI model once (~150MB for base), then it's cached. Transcription runs fully offline after that.</div>
+    <div class="note" style="margin-top:8px">In the app, the English &amp; Hindi AI models are built in — nothing to download, transcription runs fully offline. On the web, the model downloads once, then it's cached.</div>
     <div id="prog"><div></div></div>
     <div id="status"></div>
     <div id="stats"></div>
@@ -181,6 +225,17 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
           <option value="none" selected>None</option>
           <option value="pop">Pop</option>
           <option value="fade">Fade in</option>
+          <option value="karaoke">Karaoke Highlight</option>
+          <option value="bounce">Bounce</option>
+          <option value="typewriter">Typewriter</option>
+          <option value="neon">Neon Glow</option>
+          <option value="underline">Underline Sweep</option>
+          <option value="slide">Slide-in</option>
+          <option value="gradient">Gradient Sweep</option>
+          <option value="shake">Shake Emphasis</option>
+          <option value="hormozi">Hormozi</option>
+          <option value="keyword">Keyword Emphasis</option>
+          <option value="stretch">Stretch</option>
         </select>
       </div>
       <div class="field"><label>Font</label>
@@ -192,6 +247,10 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
           <option value="'Comic Sans MS'">Comic Sans</option>
           <option value="Impact">Impact</option>
           <option value="monospace">Monospace</option>
+          <option value="Helvetica">Helvetica</option>
+          <option value="'Times New Roman'">Times New Roman</option>
+          <option value="'Courier New'">Courier New</option>
+          <option value="'Trebuchet MS'">Trebuchet MS</option>
         </select>
       </div>
       <div class="field"><label>Size (<span id="sizeVal">42</span>px)</label>
@@ -226,9 +285,9 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
     <h2><span class="step">5</span>Export video with burned-in captions</h2>
     <div class="row">
       <button id="exportBtn">⬇️ Export MP4</button>
-      <button id="srtBtn" style="background:#2a2a2a">📄 SRT</button>
-      <button id="vttBtn" style="background:#2a2a2a">📄 VTT</button>
-      <span class="note">MP4 needs Chrome/Edge (WebCodecs). SRT/VTT work everywhere.</span>
+      <button id="srtBtn" style="background:#2a2a2a;color:#e8e8ef;box-shadow:none">📄 SRT</button>
+      <button id="vttBtn" style="background:#2a2a2a;color:#e8e8ef;box-shadow:none">📄 VTT</button>
+      <span class="note">MP4 export runs on-device (WebCodecs — built into the app, Chrome and Edge). SRT/VTT work everywhere.</span>
     </div>
     <div id="progExport" class="hidden"><div id="prog"><div></div></div></div>
     <div id="exportStatus" class="note" style="margin-top:8px"></div>
@@ -240,15 +299,16 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
 
 </main>
 <footer>
-  CaptionPop is free &amp; open source (MIT). Your video never leaves this browser tab.<br>
-  Made with Whisper AI running 100% locally via Transformers.js.
+  CaptionPop is free &amp; open source (MIT). Your video never leaves your device.<br>
+  Made with Whisper AI running 100% locally.<br>
+  🌐 Also on web: <a href="https://vibecode404.github.io/CaptionPop/" target="_blank">vibecode404.github.io/CaptionPop</a>
 </footer>
 <script type="module">
 import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1';
 // Use bundled models if present (mobile APK), fallback to CDN otherwise
 env.localModelPath = './models/';
 env.allowRemoteModels = true;
-env.allowLocalModels = false;
+env.allowLocalModels = true;
 
 // ============================== STATE ==============================
 const $ = id => document.getElementById(id);
@@ -284,6 +344,26 @@ function applyPreset(name) {
 }
 
 $('preset').onchange = e => applyPreset(e.target.value);
+// Preset chips: the <select> stays as the state holder; chips are the visible UI.
+(() => {
+  const sel = $('preset');
+  sel.style.display = 'none';
+  sel.closest('.field').style.gridColumn = '1 / -1';
+  const wrap = document.createElement('div');
+  wrap.className = 'chips';
+  [...sel.options].forEach(o => {
+    const c = document.createElement('span');
+    c.className = 'chip' + (o.value === sel.value ? ' on' : '');
+    c.textContent = o.textContent;
+    c.onclick = () => {
+      sel.value = o.value;
+      sel.dispatchEvent(new Event('change'));
+      wrap.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c));
+    };
+    wrap.appendChild(c);
+  });
+  sel.parentNode.appendChild(wrap);
+})();
 
 // ============================== SRT / VTT EXPORT ==============================
 function fmtSRT(s) {
@@ -294,12 +374,8 @@ function fmtVTT(s) {
   const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = Math.floor(s % 60), ms = Math.round((s % 1) * 1000);
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
 }
-function downloadText(name, text) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+async function downloadText(name, text, mime) {
+  return await saveBlob(new Blob([text], { type: mime || 'text/plain' }), name);
 }
 function buildCaptions() {
   return phrases.map((pi, idx) => ({
@@ -309,15 +385,19 @@ function buildCaptions() {
     text: pi.map(i => words[i].text).join(' ')
   }));
 }
-$('srtBtn').onclick = () => {
+$('srtBtn').onclick = async () => {
   if (!phrases.length) return alert('Generate captions first!');
   const srt = buildCaptions().map(c => `${c.n}\n${fmtSRT(c.start)} --> ${fmtSRT(c.end)}\n${c.text}\n`).join('\n');
-  downloadText('captionpop.srt', srt);
+  const nm = exportName('srt');
+  const how = await downloadText(nm, srt, 'application/x-subrip');
+  setExportStatus(how === 'picked' ? `✅ ${nm} saved.` : how === 'saved' ? `✅ ${nm} saved in your Downloads folder.` : how === 'cancelled' ? 'Export cancelled — nothing was saved.' : `✅ ${nm} is ready.`);
 };
-$('vttBtn').onclick = () => {
+$('vttBtn').onclick = async () => {
   if (!phrases.length) return alert('Generate captions first!');
   const vtt = 'WEBVTT\n\n' + buildCaptions().map(c => `${fmtVTT(c.start)} --> ${fmtVTT(c.end)}\n${c.text}\n`).join('\n');
-  downloadText('captionpop.vtt', vtt);
+  const nm = exportName('vtt');
+  const how = await downloadText(nm, vtt, 'text/vtt');
+  setExportStatus(how === 'picked' ? `✅ ${nm} saved.` : how === 'saved' ? `✅ ${nm} saved in your Downloads folder.` : how === 'cancelled' ? 'Export cancelled — nothing was saved.' : `✅ ${nm} is ready.`);
 };
 
 // ============================== UPLOAD ==============================
@@ -328,12 +408,38 @@ drop.onclick = () => fileInput.click();
 drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) loadVideo(f); });
 fileInput.onchange = () => { const f = fileInput.files[0]; if (f) loadVideo(f); };
 
+// Export files are named after the source video: abc.mp4 → captionPop-abc.mp4
+let sourceBase = 'video';
+function exportName(ext) { return `captionPop-${sourceBase}.${ext}`; }
+
 function loadVideo(f) {
+  sourceBase = (f.name || 'video').replace(/\.[^.]+$/, '').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'video';
+  video.removeAttribute('poster');
   video.src = URL.createObjectURL(f);
+  // Show a real frame from the clip as the preview (poster), instead of the
+  // WebView's big generic play icon over a black box.
+  video.onloadeddata = () => {
+    try {
+      video.currentTime = Math.min(0.1, (video.duration || 1) / 2);
+      video.onseeked = () => {
+        video.onseeked = null;
+        try {
+          const c = document.createElement('canvas');
+          c.width = video.videoWidth; c.height = video.videoHeight;
+          c.getContext('2d').drawImage(video, 0, 0);
+          video.poster = c.toDataURL('image/jpeg', 0.7);
+        } catch (e) { /* frame capture is best-effort */ }
+      };
+    } catch (e) { /* ignore — preview still works without a poster */ }
+  };
   $('stageWrap').style.display = 'block';
   $('transcribeCard').classList.remove('hidden');
   setStatus(`Loaded "${f.name}" — pick a language and hit Generate captions.`);
   words = []; phrases = []; capEl.innerHTML = '';
+  // Clear the previous video's leftovers (stats line, export status, progress)
+  $('stats').textContent = '';
+  $('exportStatus').textContent = '';
+  showProg(false);
   for (const id of ['editCard','styleCard','exportCard']) $(id).classList.add('hidden');
   $('phrases').innerHTML = '';
 }
@@ -398,22 +504,46 @@ $('go').onclick = async () => {
   const langSel = $('lang').value;
   // Auto-pick model based on language — user never touches this
   // Hindi uses the Hinglish model (Hindi audio → Roman-script Hinglish captions)
-  const modelKey = (langSel === 'hi') ? 'hinglish' : 'base';
+  // In the app both models are bundled (tiny for English, Hinglish for Hindi) —
+  // fully offline, nothing downloads. On the web, English uses the bigger base model.
+  const modelKey = (langSel === 'hi') ? 'hinglish' : (isNativeApp() ? 'tiny' : 'base');
   const btn = $('go'); btn.disabled = true;
-  showProg(true); setStatus('⏳ Loading AI model… (first run downloads it, then cached)');
+  showProg(true); setStatus(isNativeApp() ? '⏳ Loading AI model… (built into the app)' : '⏳ Loading AI model… (first run downloads it, then cached)');
   try {
     if (!transcriber || currentModel !== modelKey) {
       let lastProg = 0;
-      transcriber = await pipeline('automatic-speech-recognition', MODELS[modelKey], {
+      // "Downloading" is only honest for a real network download: in the app
+      // the models are bundled (loads are local), and on the web a cached
+      // model streams no progress events at all — both must say "Loading".
+      const bundled = isNativeApp();
+      let sawProgress = false;
+      // Hinglish (and tiny) ship quantized-only files — without dtype 'q8',
+      // transformers v3 looks for fp32 filenames that don't exist → "Failed to fetch".
+      const dtypeOpt = (modelKey === 'hinglish' || modelKey === 'tiny') ? { dtype: 'q8' } : {};
+      const createPipe = () => pipeline('automatic-speech-recognition', MODELS[modelKey], {
+        ...dtypeOpt,
         progress_callback: p => {
           if (p.status === 'progress') {
+            sawProgress = true;
             lastProg = Math.round(p.progress || 0);
-            setStatus(`⏳ Downloading model… ${lastProg}%`);
+            setStatus(bundled ? `⏳ Loading model… ${lastProg}%` : `⏳ Downloading model… ${lastProg}%`);
           } else if (p.status === 'done') {
-            setStatus('⏳ Model downloaded! Loading into memory… (this takes a minute)');
+            setStatus(!bundled && sawProgress
+              ? '⏳ Model downloaded! Loading into memory… (this takes a minute)'
+              : '⏳ Model loaded! Loading into memory… (this takes a minute)');
           }
         }
       });
+      // First-launch safety: a fresh install's very first model load can fail
+      // transiently (observed 2026-10-21 — a relaunch fixed it). Retry once
+      // quietly before any error reaches the user.
+      try {
+        transcriber = await createPipe();
+      } catch (e1) {
+        console.warn('Model load failed once, retrying…', e1);
+        setStatus('⏳ Loading model…');
+        transcriber = await createPipe();
+      }
       setStatus('⏳ Model ready! Starting transcription…');
       currentModel = modelKey;
     }
@@ -435,16 +565,24 @@ $('go').onclick = async () => {
       start: hasWordTs ? c.timestamp[0] : 0,
       end: hasWordTs ? c.timestamp[1] : 0
     }));
-    // Hinglish fix: if model returned everything as one giant chunk, split into words
-    if (words.length === 1 && words[0].text.split(/\s+/).length > 8) {
-      const bigW = words[0];
-      const tokens = bigW.text.split(/\s+/).filter(t => t);
-      const dur = (bigW.end > bigW.start) ? (bigW.end - bigW.start) : (video.duration || 10);
-      words = tokens.map((t, i) => ({
-        text: t,
-        start: bigW.start + (i * dur / tokens.length),
-        end: bigW.start + ((i + 1) * dur / tokens.length)
-      }));
+    // Normalize segment-level chunks into real words: the Hinglish model
+    // returns whole sentences (sometimes one giant paragraph) as single
+    // chunks. Treating a chunk as one "word" makes phrase building produce a
+    // wall of text covering the video, so split every multi-word entry into
+    // words with times interpolated across the entry's span.
+    {
+      const norm = [];
+      for (const w of words) {
+        const toks = w.text.split(/\s+/).filter(t => t);
+        if (toks.length <= 1) { norm.push(w); continue; }
+        const dur = (w.end > w.start) ? (w.end - w.start) : toks.length * 0.35;
+        toks.forEach((t, i) => norm.push({
+          text: t,
+          start: w.start + (i * dur / toks.length),
+          end: w.start + ((i + 1) * dur / toks.length)
+        }));
+      }
+      words = norm;
     }
     if (!hasWordTs && words.length) {
       // fallback: spread evenly across duration
@@ -468,7 +606,7 @@ $('go').onclick = async () => {
     renderPhraseEditor();
     applyStyle();
     showProg(false);
-    $('stats').textContent = `✅ ${words.length} words • ${phrases.length} captions • playing the video previews karaoke`;
+    $('stats').textContent = `✅ ${words.length} words • ${phrases.length} captions • Playing the video previews karaoke`;
     $('editCard').classList.remove('hidden');
     $('styleCard').classList.remove('hidden');
     $('exportCard').classList.remove('hidden');
@@ -480,6 +618,7 @@ $('go').onclick = async () => {
   }
   btn.disabled = false;
 };
+
 
 function setStatus(t) { const s = $('status'); s.textContent = t; s.classList.toggle('working', /⏳/.test(t)); }
 function showProg(on) { $('prog').style.display = on ? 'block' : 'none'; if (on) $('prog').firstElementChild.style.width = '40%'; }
@@ -503,6 +642,14 @@ function buildPhrases() {
     const flat = phrases.flat();
     phrases = [];
     for (let i = 0; i < flat.length; i += wpc) phrases.push(flat.slice(i, i + wpc));
+  }
+  // Merge orphan phrases: a leftover chunk of 1–3 words on its own reads badly
+  // (e.g. a caption that is just "a pixel 6A."). Fold it into the previous phrase.
+  for (let p = phrases.length - 1; p > 0; p--) {
+    if (phrases[p].length <= 3 && phrases[p - 1].length + phrases[p].length <= 16) {
+      phrases[p - 1] = phrases[p - 1].concat(phrases[p]);
+      phrases.splice(p, 1);
+    }
   }
 }
 
@@ -641,7 +788,7 @@ function drawCaptionOnCanvas(ctx, W, H, layout, tNow) {
   layout.forEach((w, k) => {
     const ww = widths[k];
     // word animation (only for the active word)
-    let wScale = 1, wAlpha = 1, wDy = 0;
+    let wScale = 1, wAlpha = 1, wDy = 0, wDx = 0, wScaleX = 1;
     if (w.active && style.anim !== 'none' && tNow !== undefined) {
       const age = Math.max(0, tNow - w.start);
       if (style.anim === 'pop') {
@@ -650,6 +797,44 @@ function drawCaptionOnCanvas(ctx, W, H, layout, tNow) {
       } else if (style.anim === 'fade') {
         const p = Math.min(1, age / 0.4);
         wAlpha = p; wDy = (1 - p) * fs * 0.15;
+      } else if (style.anim === 'karaoke') {
+        const p = Math.min(1, age / 0.2);
+        wAlpha = 0.5 + p * 0.5;
+      } else if (style.anim === 'bounce') {
+        const p = Math.min(1, age / 0.5);
+        wScale = p < 0.5 ? 0.3 + (p / 0.5) * 0.95 : p < 0.7 ? 1.25 - ((p - 0.5) / 0.2) * 0.3 : 0.95 + ((p - 0.7) / 0.3) * 0.05;
+      } else if (style.anim === 'typewriter') {
+        const p = Math.min(1, age / 0.4);
+        w.typeProgress = p;
+      } else if (style.anim === 'neon') {
+        const p = Math.min(1, age / 0.3);
+        w.neonGlow = (1 - p) * 20;
+        wScale = 1 + (1 - p) * 0.1;
+      } else if (style.anim === 'underline') {
+        const p = Math.min(1, age / 0.35);
+        w.underlineProgress = p;
+        wAlpha = p; wDy = (1 - p) * fs * 0.2;
+      } else if (style.anim === 'slide') {
+        const p = Math.min(1, age / 0.35);
+        wAlpha = p; wDy = (1 - p) * fs * 0.5;
+      } else if (style.anim === 'gradient') {
+        const p = Math.min(1, age / 0.4);
+        wScale = 0.85 + p * 0.15; wAlpha = 0.4 + p * 0.6;
+        w.gradProgress = p;
+      } else if (style.anim === 'shake') {
+        const p = Math.min(1, age / 0.4);
+        w.shakeP = p;
+      } else if (style.anim === 'hormozi') {
+        const p = Math.min(1, age / 0.25);
+        wScale = 0.7 + p * 0.3;
+        w.hormozi = true;
+      } else if (style.anim === 'keyword') {
+        const p = Math.min(1, age / 0.3);
+        wScale = 0.8 + p * 0.2; wAlpha = p;
+        if (w.text.length > 5) w.isKeyword = true;
+      } else if (style.anim === 'stretch') {
+        const p = Math.min(1, age / 0.35);
+        w.stretchP = p;
       }
     }
     ctx.save();
@@ -675,7 +860,15 @@ function drawCaptionOnCanvas(ctx, W, H, layout, tNow) {
 }
 
 // ============================== EXPORT (WebCodecs MP4) ==============================
-function setExportStatus(t) { $('exportStatus').textContent = t; }
+function setExportStatus(t) {
+  $('exportStatus').textContent = t;
+  // Crash breadcrumb: persist the current stage so if the app dies
+  // mid-export, the next launch can report exactly where it stopped.
+  try {
+    if (t.startsWith('✅')) localStorage.removeItem('cp_export_stage');
+    else if (t) localStorage.setItem('cp_export_stage', t);
+  } catch (e) {}
+}
 function loadScript(src) {
   return new Promise((res, rej) => {
     if (document.querySelector(`script[src="${src}"]`)) return res();
@@ -684,12 +877,66 @@ function loadScript(src) {
     document.head.appendChild(s);
   });
 }
-function downloadBlob(blob, name) {
+// ============================== SAVE / SHARE ==============================
+// In the Android app, a blob <a download> click silently does nothing — the
+// WebView has no download handler. Route exports through the Capacitor
+// Filesystem + Share plugins there (file lands wherever the user picks).
+// On the web, keep the normal browser download. Returns 'picked' | 'saved' | 'shared' | 'downloaded' | 'cancelled'.
+const isNativeApp = () => !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+async function saveBlob(blob, name) {
+  const P = window.Capacitor && window.Capacitor.Plugins;
+  // In the app: stage the export as a cache file first, then hand the native
+  // plugin a small file PATH — never megabytes of base64. A picker call is
+  // retained (and persisted) by the bridge while the system file-picker is
+  // open, and a huge string in it kills the app on large MP4 exports.
+  // First choice: the system "Save as" picker (user picks folder + name).
+  // Backing out stops here ('cancelled'); if the picker itself fails, fall
+  // back to a straight Downloads save, then the share sheet.
+  if (isNativeApp() && P && P.SaveFile && P.Filesystem) {
+    try {
+      // Stage in 512KB chunks: pushing the whole MP4 through the bridge as
+      // one giant base64 string is itself a crash risk on large exports.
+      const CH = 512 * 1024;
+      let w = null;
+      for (let off = 0; off < blob.size; off += CH) {
+        const data = await blobToBase64(blob.slice(off, off + CH));
+        if (off === 0) {
+          w = await P.Filesystem.writeFile({ path: 'exports/' + name, data, directory: 'CACHE', recursive: true });
+        } else {
+          await P.Filesystem.appendFile({ path: 'exports/' + name, data, directory: 'CACHE' });
+        }
+      }
+      if (!w) w = await P.Filesystem.writeFile({ path: 'exports/' + name, data: '', directory: 'CACHE', recursive: true });
+      const srcPath = decodeURIComponent(String(w.uri).replace(/^file:\/\//, ''));
+      const args = { sourcePath: srcPath, fileName: name, mimeType: blob.type || 'application/octet-stream' };
+      try {
+        await P.SaveFile.saveWithPicker(args);
+        return 'picked';
+      } catch (e) {
+        if (e && /cancel/i.test(e.message || '')) return 'cancelled';
+        try { await P.SaveFile.saveToDownloads(args); return 'saved'; } catch (e2) { /* fall through to share */ }
+      }
+      try {
+        await P.Share.share({ title: name, url: w.uri, dialogTitle: 'Save ' + name });
+      } catch (e) { /* share sheet dismissed — user can export again */ }
+      return 'shared';
+    } catch (e) { /* staging failed — best effort via the web path below */ }
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  return 'downloaded';
 }
+function downloadBlob(blob, name) { return saveBlob(blob, name); }
 
 function demuxVideo(arrayBuffer) {
   return new Promise((resolve, reject) => {
@@ -781,7 +1028,7 @@ $('exportBtn').onclick = async () => {
   const btn = $('exportBtn');
   if (!words.length) { setExportStatus('Generate captions first (step 2).'); return; }
   if (!('VideoEncoder' in window) || !('VideoDecoder' in window) || !('AudioEncoder' in window)) {
-    setExportStatus('❌ This browser does not support WebCodecs. Please use Chrome or Edge on desktop.');
+    setExportStatus('❌ MP4 export needs WebCodecs, which this device/browser does not support. SRT/VTT export still works.');
     return;
   }
   btn.disabled = true;
@@ -837,7 +1084,17 @@ $('exportBtn').onclick = async () => {
       });
       try {
         decoder.configure(videoConfig);
+        let fed = 0;
         for (const s of videoSamples) {
+          // Backpressure (crash fix): feeding every sample at once lets
+          // hundreds of decoded 1080p frames pile up in memory and the
+          // WebView gets OOM-killed mid-export — the whole app "closes".
+          // Keep only a few frames in flight; compressed samples are cheap,
+          // decoded frames are ~8MB each.
+          while (decoder.decodeQueueSize > 8 || videoEncoder.encodeQueueSize > 8 || (fed - framesDone) > 12) {
+            await new Promise(r => setTimeout(r, 10));
+          }
+          fed++;
           decoder.decode(new EncodedVideoChunk({
             type: s.is_sync ? 'key' : 'delta',
             timestamp: Math.round(s.cts * 1e6 / s.timescale),
@@ -860,14 +1117,32 @@ $('exportBtn').onclick = async () => {
 
     setExportStatus('Finalizing MP4…');
     muxer.finalize();
-    downloadBlob(new Blob([muxer.target.buffer], { type: 'video/mp4' }), 'captionpop-captioned.mp4');
-    setExportStatus('✅ Done! Your captioned MP4 has been downloaded. Check it and tell me how it looks.');
+    const howSaved = await saveBlob(new Blob([muxer.target.buffer], { type: 'video/mp4' }), exportName('mp4'));
+    setExportStatus(howSaved === 'picked'
+      ? '✅ Done! Your captioned MP4 is saved.'
+      : howSaved === 'saved'
+        ? '✅ Done! Your captioned MP4 is saved in your Downloads folder.'
+        : howSaved === 'cancelled'
+          ? 'Export cancelled — nothing was saved.'
+          : howSaved === 'shared'
+            ? '✅ Done! Your captioned MP4 is ready — if you closed the save/share popup without saving, tap Export again.'
+            : '✅ Done! Your captioned MP4 has been downloaded. Check it and tell me how it looks.');
   } catch (e) {
     console.error(e);
     setExportStatus('❌ Export failed: ' + (e.message || e));
   }
   btn.disabled = false;
 };
+
+// If a previous export died mid-way (app closed), report where it stopped.
+try {
+  const lastStage = localStorage.getItem('cp_export_stage');
+  if (lastStage) {
+    const dl = $('debugline');
+    dl.textContent = '⚠️ Last export stopped at: ' + lastStage;
+    dl.style.display = 'block';
+  }
+} catch (e) {}
 </script>
 </body>
 </html>
