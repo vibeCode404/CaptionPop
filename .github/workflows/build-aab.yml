@@ -55,6 +55,18 @@ jobs:
           curl -sL "$HB/onnx/decoder_model_merged_quantized.onnx" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/onnx/decoder_model_merged_quantized.onnx
           du -sh www/models/
 
+      - name: Assemble SaveFile plugin folder
+        run: |
+          # The plugin's files were uploaded to the repo ROOT (package.json,
+          # index.js, android/) instead of a savefile-plugin/ folder. Gather
+          # them into ./savefile-plugin for the npm install below — moving
+          # (not copying) also clears the stray root android/ folder, which
+          # would otherwise block `npx cap add android` later in this job.
+          mkdir -p savefile-plugin
+          mv package.json index.js savefile-plugin/
+          mv android savefile-plugin/android
+          ls -R savefile-plugin
+
       - name: Setup Capacitor
         run: |
           npm init -y
