@@ -29,22 +29,38 @@ jobs:
           curl -sL https://vibecode404.github.io/CaptionPop/icon-512.png -o www/icon-512.png
           ls -lh www/
 
-      - name: Bundle Whisper tiny model (offline)
+      - name: Bundle Whisper tiny model (offline, quantized)
         run: |
           mkdir -p www/models/Xenova/whisper-tiny/onnx
           BASE="https://huggingface.co/Xenova/whisper-tiny/resolve/main"
           curl -sL "$BASE/config.json" -o www/models/Xenova/whisper-tiny/config.json
+          curl -sL "$BASE/generation_config.json" -o www/models/Xenova/whisper-tiny/generation_config.json
+          curl -sL "$BASE/preprocessor_config.json" -o www/models/Xenova/whisper-tiny/preprocessor_config.json
           curl -sL "$BASE/tokenizer.json" -o www/models/Xenova/whisper-tiny/tokenizer.json
           curl -sL "$BASE/tokenizer_config.json" -o www/models/Xenova/whisper-tiny/tokenizer_config.json
-          curl -sL "$BASE/onnx/encoder_model.onnx" -o www/models/Xenova/whisper-tiny/onnx/encoder_model.onnx
-          curl -sL "$BASE/onnx/decoder_model.onnx" -o www/models/Xenova/whisper-tiny/onnx/decoder_model.onnx
-          curl -sL "$BASE/onnx/decoder_with_past_model.onnx" -o www/models/Xenova/whisper-tiny/onnx/decoder_with_past_model.onnx
+          curl -sL "$BASE/onnx/encoder_model_quantized.onnx" -o www/models/Xenova/whisper-tiny/onnx/encoder_model_quantized.onnx
+          curl -sL "$BASE/onnx/decoder_model_merged_quantized.onnx" -o www/models/Xenova/whisper-tiny/onnx/decoder_model_merged_quantized.onnx
+          du -sh www/models/
+
+      - name: Bundle Hinglish model for Hindi (offline, quantized)
+        run: |
+          mkdir -p www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/onnx
+          HB="https://huggingface.co/mahajanGaurav/whisper-hinglish-tiny-onnx/resolve/main"
+          curl -sL "$HB/config.json" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/config.json
+          curl -sL "$HB/generation_config.json" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/generation_config.json
+          curl -sL "$HB/preprocessor_config.json" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/preprocessor_config.json
+          curl -sL "$HB/tokenizer.json" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/tokenizer.json
+          curl -sL "$HB/tokenizer_config.json" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/tokenizer_config.json
+          curl -sL "$HB/onnx/encoder_model_quantized.onnx" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/onnx/encoder_model_quantized.onnx
+          curl -sL "$HB/onnx/decoder_model_merged_quantized.onnx" -o www/models/mahajanGaurav/whisper-hinglish-tiny-onnx/onnx/decoder_model_merged_quantized.onnx
           du -sh www/models/
 
       - name: Setup Capacitor
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/filesystem @capacitor/share
+          # Local SaveFile plugin (saves exports straight to Downloads) — folder lives in the repo root
+          npm install ./savefile-plugin
           npx cap init "CaptionPop" "com.vibecode404.captionpop" --web-dir=www
           npx cap add android
           npx cap sync android
