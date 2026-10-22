@@ -1,0 +1,1 @@
+{"capacitor":{"android":{"src":"android"}},"description":"CaptionPop native plugin: saves files straight into the device Downloads folder via MediaStore (no share sheet needed).","files":["index.js","android"],"keywords":["capacitor","plugin","android"],"license":"MIT","main":"index.js","name":"captionpop-savefile","version":"1.0.0"}
